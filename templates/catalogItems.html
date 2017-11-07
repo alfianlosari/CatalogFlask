@@ -1,0 +1,33 @@
+{% extends "main.html" %}
+{% block content %}
+<div id='container'>
+    <div id='body-container'>
+        <div id='side-container'>
+            {% include "categories.html" %}
+        </div>
+        <div id='content-container'>
+            {% if login_session['username'] %}
+                <a href = "{{url_for('newCatalogItem')}}"><p>Add Item</p></a>                        
+            {% endif %}
+            <h3>{{ catalog.id }} items ({{ items|length }} items)</h3>
+            <ul>
+            {% for item in items %}
+                <li>
+                    <a href = "{{url_for('showCatalogItem', catalog_id=item.catalog.id, item_id=item.id)}}">{{ item.id }} ({{ item.catalog.id }})</a>
+                    {% if login_session['username'] %}
+                        <div>
+                            <a href = "{{url_for('editCatalogItem', catalog_id=item.catalog.id, item_id=item.id)}}">Edit</a> |
+                            <a href = "{{url_for('deleteCatalogItem', catalog_id=item.catalog.id, item_id=item.id)}}">Delete</a> 
+                        </div>
+                    {% endif %}
+                </li>
+            {% endfor %}
+            </ul>
+
+        </div>
+        
+    </div>
+</div>
+{% endblock %}
+
+

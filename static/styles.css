@@ -1,0 +1,162 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    min-width: 768px;
+    background:#d8d8d8;
+}
+
+ul {
+    list-style-type: none;
+    padding-left:0;
+    
+  }
+
+li {
+    margin-bottom: 8px;
+}
+
+a {
+    min-height: 48px;
+    min-width: 48px;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: none;
+        
+}
+
+header {
+    background: black;
+    margin: 0px 0px 16px 0px;
+    min-height: 50px;
+   
+}
+
+#header-container{
+    max-width: 1184px;
+    display: flex;
+    flex-direction: row;
+    margin: auto;
+    
+}
+
+header p {
+    color: white;
+    margin-top: 8px;
+}
+
+header h1 {
+    margin-top: auto;
+    margin-bottom: auto;
+    margin-left: 16px;
+    color: white;
+}
+
+header a {
+    color: white;
+}
+
+header a:hover {
+    color: white;
+}
+
+#header-button {
+    margin-top: 8px;
+    margin-bottom: 8px;
+    font-size: 1.2em;
+    background: orange;
+    padding: 4px 8px 4px 8px;
+    color: white;
+    border-radius: 5px;
+}
+
+#header-login {
+    margin-top: auto;    
+    margin-left: auto;
+    margin-right: 16px;
+    margin-bottom: auto;
+    text-align: right;
+
+}
+
+#container {
+    max-width: 1184px;
+    margin: auto;
+}
+
+#item-container {
+    margin-left: 16px;
+    margin-right: 16px;
+    background: white;
+    padding: 16px;
+    
+}
+
+#body-container {
+    margin-left: 16px;
+    margin-right: 16px;
+    display: flex;
+    flex-direction: row;    
+    background: white;
+    padding: 16px;
+    
+}
+
+#side-container h3 {
+    margin-top: 0px;
+
+}
+
+#side-container {
+    border-right: 1px solid #f3f5f5;
+    padding-right: 16px;
+    
+}
+
+textarea {
+    width: 100%;
+    height: 200px
+}
+
+#content-container {
+    margin-left: 20px;
+    
+}
+
+#content-container p {
+    font-size: 1.5em;
+    
+}
+#content-container h3 {
+    margin-top: 8px
+    ;
+    
+}
+
+#item-container h3 {
+    margin-top: 0px
+    ;
+    
+}
+
+#form-container {
+    margin-left: 16px;
+    margin-right: 16px;
+    background: white;
+    padding: 16px;
+    
+}
+
+#form-container h3 {
+    margin-top: 0px;
+    
+}
+
+#button {
+    margin-top: 8px
+    ;
+    
+}

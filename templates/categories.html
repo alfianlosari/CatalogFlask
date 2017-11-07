@@ -1,0 +1,6 @@
+<h3>Categories</h3>
+<ul>
+    {% for catalog in catalogs %}
+    <li><a href = "{{url_for('showCatalogItems', id = catalog.id)}}">{{catalog.id}}</a></li>
+    {% endfor %}
+</ul>

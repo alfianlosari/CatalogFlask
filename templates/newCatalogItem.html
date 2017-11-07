@@ -1,0 +1,31 @@
+{% extends "main.html" %}
+{% block content %}
+
+
+<div id='container'>
+    <div id='form-container'>
+        <h3>New Catalog Item</h3>
+        <form action="{{url_for('newCatalogItem')}}" method='post'>
+            <p>Name:</p>
+            <input type='text' size='30' name='name'/>
+            <p>Description:</p>
+            <textarea name="description"></textarea>
+            <p>Category:</p>
+            <select name='catalog'>
+                {% for catalog in catalogs %}
+                    <option value="{{catalog.id}}">{{catalog.id}}</option>
+                {% endfor %}
+            </select>
+            <br/>
+            <br/>
+            <input type="submit" value='Create'/>
+        </form>
+        <a href="{{url_for('showMain')}}"><div id='button'>Cancel</div></a>
+            
+    </div>
+        
+</div>
+
+
+
+{% endblock %}

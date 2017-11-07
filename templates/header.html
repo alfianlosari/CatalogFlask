@@ -1,0 +1,18 @@
+<header>
+    <div id='header-container'>
+        <h1><a href="{{url_for('showMain')}}">Catalog App</a></h1>
+
+        <div id='header-login'>
+        {% if login_session['username'] %}
+
+            <p>{{ login_session['username'] }}</p>
+            <a href="{{ url_for('googleLogout') }}"><div id='header-button'>Logout</div></a>
+
+        {% else %}
+        
+            <a href="{{ url_for('showLogin') }}"><div id='header-button'>Login</div></a>
+        
+        {% endif %}
+        </div>
+    </div>
+</header>

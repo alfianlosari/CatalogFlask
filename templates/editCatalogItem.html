@@ -1,0 +1,28 @@
+{% extends "main.html" %}
+{% block content %}
+
+<div id='container'>
+    <div id='form-container'>
+        <h3>Edit Catalog Item</h3>
+        <form action="{{url_for('editCatalogItem', catalog_id=item.catalog.id, item_id=item.id)}}" method='post'>
+            <p>Name:</p>
+            <input type='text' size='30' placeholder='{{item.id}}' name='name'/>
+            <p>Description:</p>
+            <textarea name="description">{{item.description}}</textarea>
+            <p>Category:</p>
+            <select name='catalog'>
+                {% for catalog in catalogs %}
+                    <option value="{{catalog.id}}" {% if item.catalog.id == catalog.id %} selected='selected' {% endif %}>{{catalog.id}}</option>
+                {% endfor %}
+            </select>
+            <br/>
+            <br/>
+            <input type="submit" value='Edit'/>
+        </form>
+        <a href="{{url_for('showCatalogItems', id=item.catalog.id)}}"><div id='button'>Cancel</div></a>
+            
+    </div>
+    
+</div>
+
+{% endblock %}
