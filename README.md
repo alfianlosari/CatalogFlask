@@ -1,7 +1,7 @@
 # Catalog
 ### Udacity Full Stack Web Developer Nanodegree Project
 
-#### A Backend built with Flask Python Web Framework. Using this app user can login using their Google Account, add, edit, delete catalog item in a specific category.
+#### A Backend built with Flask Python Web Framework. The app list all the catalog items with their description that belongs to specific category. Using this app user can login using their Google Account, add, edit, delete catalog item.
 
 #### Requirement
 1. Python 3.6
