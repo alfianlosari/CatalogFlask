@@ -8,6 +8,7 @@ from sqlalchemy import create_engine
 
 Base = declarative_base()
 
+
 class Catalog(Base):
     __tablename__ = 'catalog'
 
@@ -42,4 +43,3 @@ class CatalogItem(Base):
 
 engine = create_engine('sqlite:///catalogitem.db')
 Base.metadata.create_all(engine)
-    

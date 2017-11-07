@@ -1,7 +1,6 @@
 {% extends "main.html" %}
 {% block content %}
 
-
 <div id='container'>
     <div id='form-container'>
         <h3>New Catalog Item</h3>
@@ -20,12 +19,8 @@
             <br/>
             <input type="submit" value='Create'/>
         </form>
-        <a href="{{url_for('showMain')}}"><div id='button'>Cancel</div></a>
-            
-    </div>
-        
+        <a href="{{url_for('showMain')}}"><div id='button'>Cancel</div></a>  
+    </div>  
 </div>
-
-
 
 {% endblock %}

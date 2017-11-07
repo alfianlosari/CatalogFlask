@@ -1,11 +1,13 @@
 #!/usr/bin/python3
-from flask import Flask, render_template, request, redirect, jsonify, url_for, flash
+from flask import Flask, render_template, request
+from flask import redirect, jsonify, url_for, flash
 from flask import session as login_session
 from flask import make_response
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from database_setup import Base, Catalog, CatalogItem
-import random, string
+import random
+import string
 
 from oauth2client.client import flow_from_clientsecrets
 from oauth2client.client import FlowExchangeError
@@ -21,11 +23,16 @@ Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
-CLIENT_ID = json.loads(open('client_secret.json', 'r').read())['web']['client_id']
+json_file_name = 'client_secret.json'
+CLIENT_ID = json.loads(open(json_file_name, 'r').read())['web']['client_id']
+
 
 @app.route('/login')
 def showLogin():
-    state = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(32))
+    state = ''.join(
+        random.choice(string.ascii_uppercase + string.digits)
+        for x in range(32)
+    )
     login_session['state'] = state
     return render_template('login.html', STATE=state)
 
@@ -34,7 +41,11 @@ def showLogin():
 def showMain():
     catalogs = session.query(Catalog).all()
     items = session.query(CatalogItem).all()
-    return render_template('root.html', catalogs=catalogs, items=items, login_session=login_session)
+    return render_template(
+        'root.html', catalogs=catalogs,
+        items=items,
+        login_session=login_session
+    )
 
 
 @app.route('/googleLogin', methods=['POST'])
@@ -45,15 +56,20 @@ def googleLogin():
         return response
     code = request.data
     try:
-        oauth_flow = flow_from_clientsecrets('client_secret.json',scope='')
+        oauth_flow = flow_from_clientsecrets('client_secret.json', scope='')
         oauth_flow.redirect_uri = 'postmessage'
         credentials = oauth_flow.step2_exchange(code)
     except FlowExchangeError:
-        response = make_response(json.dumps('Failed to upgrade the authorization code'), 401)
+        response = make_response(
+            json.dumps('Failed to upgrade the authorization code'),
+            401
+        )
         response.headers['Content-Type'] = 'application/json'
         return response
     access_token = credentials.access_token
-    url = "https://www.googleapis.com/oauth2/v1/tokeninfo?access_token={}".format(access_token)
+    url = """
+        https://www.googleapis.com/oauth2/v1/tokeninfo?access_token={}
+    """.format(access_token)
     h = httplib2.Http()
     result = json.loads(h.request(url, 'GET')[1].decode())
     if result.get('error') is not None:
@@ -62,17 +78,26 @@ def googleLogin():
         return response
     gplus_id = credentials.id_token['sub']
     if result['user_id'] != gplus_id:
-        response = make_response(json.dumps("Token's user ID doesn't match given user ID"), 401)
+        response = make_response(
+            json.dumps("Token's user ID doesn't match given user ID"),
+            401
+        )
         response.headers['Content-Type'] = 'application/json'
         return response
     if result['issued_to'] != CLIENT_ID:
-        response = make_response(json.dumps("Token's Client ID does not match app's"), 401)
+        response = make_response(
+            json.dumps("Token's Client ID does not match app's"),
+            401
+        )
         response.headers['Content-Type'] = 'application/json'
         return response
     stored_access_token = login_session.get('access_token')
     stored_gplus_id = login_session.get('gplus_id')
     if stored_access_token is not None and gplus_id == stored_gplus_id:
-        response = make_response(json.dumps('Current user is already connected'), 200)
+        response = make_response(
+            json.dumps('Current user is already connected'),
+            200
+        )
         response.headers['Content-Type'] = 'application/json'
         return response
     login_session['access_token'] = credentials.access_token
@@ -80,7 +105,7 @@ def googleLogin():
 
     userinfo_url = "https://www.googleapis.com/oauth2/v1/userinfo"
     params = {'access_token': credentials.access_token, 'alt': 'json'}
-    answer = requests.get(userinfo_url,params=params)
+    answer = requests.get(userinfo_url, params=params)
     data = answer.json()
 
     login_session['username'] = data["name"]
@@ -104,7 +129,9 @@ def googleLogout():
     access_token = login_session.get('access_token')
     if access_token is None:
         return redirect(url_for('showMain'))
-    url = 'https://accounts.google.com/o/oauth2/revoke?token={}'.format(access_token)
+    url = """
+        https://accounts.google.com/o/oauth2/revoke?token={}
+    """.format(access_token)
     h = httplib2.Http()
     result = h.request(url, 'GET')[0]
     del login_session['access_token']
@@ -115,7 +142,10 @@ def googleLogout():
     if result['status'] == '200':
         return redirect(url_for('showMain'))
     else:
-        response = make_response(json.dumps('Failed to revoke token for given user'), 400)
+        response = make_response(
+            json.dumps('Failed to revoke token for given user'),
+            400
+        )
         response.headers['Content-Type'] = 'application/json'
         return response
 
@@ -125,7 +155,13 @@ def showCatalogItems(id):
     catalogs = session.query(Catalog).all()
     catalog = session.query(Catalog).filter_by(id=id).one()
     items = session.query(CatalogItem).filter_by(catalog_id=catalog.id).all()
-    return render_template('catalogItems.html', catalogs=catalogs, catalog=catalog, items=items, login_session=login_session)
+    return render_template(
+        'catalogItems.html',
+        catalogs=catalogs,
+        catalog=catalog,
+        items=items,
+        login_session=login_session
+    )
 
 
 @app.route('/catalog/<string:catalog_id>/item/<string:item_id>/')
@@ -150,10 +186,17 @@ def newCatalogItem():
         return redirect(url_for('showCatalogItems', id=catalog_id))
     else:
         catalogs = session.query(Catalog).all()
-        return render_template('newCatalogItem.html', catalogs=catalogs, login_session=login_session)
+        return render_template(
+            'newCatalogItem.html',
+            catalogs=catalogs,
+            login_session=login_session
+        )
 
 
-@app.route('/catalog/<string:catalog_id>/item/<string:item_id>/edit/', methods=['GET', 'POST'])
+@app.route(
+    '/catalog/<string:catalog_id>/item/<string:item_id>/edit/',
+    methods=['GET', 'POST']
+)
 def editCatalogItem(catalog_id, item_id):
     if 'username' not in login_session:
         return redirect('/login')
@@ -165,17 +208,30 @@ def editCatalogItem(catalog_id, item_id):
         if request.form['description']:
             item.description = request.form['description']
         if request.form['catalog']:
-            catalog = session.query(Catalog).filter_by(id=request.form['catalog']).one()
+            catalog = (
+                session
+                .query(Catalog)
+                .filter_by(id=request.form['catalog'])
+                .one()
+            )
             item.catalog = catalog
         session.add(item)
         session.commit()
         return redirect(url_for('showCatalogItems', id=item.catalog.id))
     else:
         catalogs = session.query(Catalog).all()
-        return render_template('editCatalogItem.html', item=item, catalogs=catalogs, login_session=login_session)
+        return render_template(
+            'editCatalogItem.html',
+            item=item,
+            catalogs=catalogs,
+            login_session=login_session
+        )
 
 
-@app.route('/catalog/<string:catalog_id>/item/<string:item_id>/delete/', methods=['GET', 'POST'])
+@app.route(
+    '/catalog/<string:catalog_id>/item/<string:item_id>/delete/',
+    methods=['GET', 'POST']
+)
 def deleteCatalogItem(catalog_id, item_id):
     if 'username' not in login_session:
         return redirect('/login')
@@ -186,7 +242,11 @@ def deleteCatalogItem(catalog_id, item_id):
         session.commit()
         return redirect(url_for('showCatalogItems', id=catalog_id))
     else:
-        return render_template('deleteCatalogItem.html', item=item, login_session=login_session)
+        return render_template(
+            'deleteCatalogItem.html',
+            item=item,
+            login_session=login_session
+        )
 
 
 @app.route('/catalogs/JSON')
