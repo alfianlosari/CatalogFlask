@@ -5,7 +5,7 @@ from flask import session as login_session
 from flask import make_response
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from database_setup import Base, Catalog, CatalogItem
+from database_setup import Base, User, Catalog, CatalogItem
 import random
 import string
 
@@ -75,9 +75,10 @@ def googleLogin():
 
     # Check that the access token is valid.
     access_token = credentials.access_token
-    url = """
-        https://www.googleapis.com/oauth2/v1/tokeninfo?access_token={}
-    """.format(access_token)
+    url = (
+        "https://www.googleapis.com/oauth2/v1/tokeninfo?access_token={}"
+        .format(access_token)
+    )
     h = httplib2.Http()
     result = json.loads(h.request(url, 'GET')[1].decode())
 
@@ -128,6 +129,12 @@ def googleLogin():
     login_session['picture'] = data["picture"]
     login_session['email'] = data["email"]
 
+    # see if user exists, if it doesn't make a new one
+    user_id = getUserID(login_session['email'])
+    if not user_id:
+        user_id = createUser(login_session)
+    login_session['user_id'] = user_id
+
     output = ''
     output += '<h1>Welcome, '
     output += login_session['username']
@@ -146,12 +153,14 @@ def googleLogout():
     access_token = login_session.get('access_token')
     if access_token is None:
         return redirect(url_for('showMain'))
-    url = """
-        https://accounts.google.com/o/oauth2/revoke?token={}
-    """.format(access_token)
+    url = (
+        "https://accounts.google.com/o/oauth2/revoke?token={}"
+        .format(access_token)
+    )
     h = httplib2.Http()
     result = h.request(url, 'GET')[0]
     del login_session['access_token']
+    del login_session['user_id']
     del login_session['gplus_id']
     del login_session['username']
     del login_session['email']
@@ -197,7 +206,12 @@ def newCatalogItem():
         description = request.form['description']
         catalog_id = request.form['catalog']
         catalog = session.query(Catalog).filter_by(id=catalog_id).one()
-        newItem = CatalogItem(id=id, description=description, catalog=catalog)
+        newItem = CatalogItem(
+            id=id,
+            description=description,
+            catalog=catalog,
+            user_id=login_session['user_id']
+        )
         session.add(newItem)
         session.commit()
         return redirect(url_for('showCatalogItems', id=catalog_id))
@@ -217,8 +231,14 @@ def newCatalogItem():
 def editCatalogItem(catalog_id, item_id):
     if 'username' not in login_session:
         return redirect('/login')
-
     item = session.query(CatalogItem).filter_by(id=item_id).one()
+    if item.user.id != login_session['user_id']:
+        return (
+            "<script>function myFunction() {"
+            "alert('You are not authorized to edit this catalog item."
+            " Please create your own catalog item in order to edit.');}"
+            "</script><body onload='myFunction()'>"
+        )
     if request.method == 'POST':
         if request.form['name']:
             item.id = request.form['name']
@@ -252,8 +272,14 @@ def editCatalogItem(catalog_id, item_id):
 def deleteCatalogItem(catalog_id, item_id):
     if 'username' not in login_session:
         return redirect('/login')
-
     item = session.query(CatalogItem).filter_by(id=item_id).one()
+    if item.user.id != login_session['user_id']:
+        return (
+            "<script>function myFunction() {"
+            "alert('You are not authorized to delete this catalog item."
+            " Please create your own catalog item in order to delete.');}"
+            "</script><body onload='myFunction()'>"
+        )
     if request.method == 'POST':
         session.delete(item)
         session.commit()
@@ -277,6 +303,43 @@ def catalogsJSON():
 def catalogItemJSON(catalog_id, item_id):
     item = session.query(CatalogItem).filter_by(id=item_id).one()
     return jsonify(item.serialize)
+
+
+def createUser(login_session):
+    newUser = User(
+        name=login_session['username'],
+        email=login_session['email'],
+        picture=login_session['picture']
+    )
+    session.add(newUser)
+    session.commit()
+    user = (
+        session.query(User)
+        .filter_by(email=login_session['email'])
+        .one()
+    )
+    return user.id
+
+
+def getUserInfo(user_id):
+    user = (
+        session.query(User)
+        .filter_by(id=user_id)
+        .one()
+    )
+    return user
+
+
+def getUserID(email):
+    try:
+        user = (
+            session.query(User)
+            .filter_by(email=email)
+            .one()
+        )
+        return user.id
+    except:
+        return None
 
 
 if __name__ == '__main__':

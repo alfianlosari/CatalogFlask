@@ -1,12 +1,20 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from database_setup import Catalog, Base, CatalogItem
+from database_setup import User, Catalog, Base, CatalogItem
 
 engine = create_engine('sqlite:///catalogitem.db')
 Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
+
+user1 = User(
+    name='Alfian Lo',
+    email='alfian@losari.org',
+    picture='',
+)
+session.add(user1)
+session.commit()
 
 Soccer = Catalog(id="Soccer")
 session.add(Soccer)
@@ -15,7 +23,8 @@ session.commit()
 soccerItem = CatalogItem(
     id="Two shinguards",
     description="A Protector",
-    catalog=Soccer
+    catalog=Soccer,
+    user_id=user1.id
 )
 session.add(soccerItem)
 session.commit()
@@ -27,7 +36,8 @@ session.commit()
 basketballItem = CatalogItem(
     id="Air Jordan XXIII",
     description="A Protector",
-    catalog=Basketball
+    catalog=Basketball,
+    user_id=user1.id
 )
 session.add(basketballItem)
 session.commit()
@@ -39,7 +49,8 @@ session.commit()
 baseballItem = CatalogItem(
     id="Bat",
     description="A Protector",
-    catalog=Baseball
+    catalog=Baseball,
+    user_id=user1.id
 )
 session.add(baseballItem)
 session.commit()
@@ -55,7 +66,8 @@ session.commit()
 snowboardingItem = CatalogItem(
     id="Snowboard",
     description="A Protector",
-    catalog=Snowboarding
+    catalog=Snowboarding,
+    user_id=user1.id
 )
 session.add(soccerItem)
 session.commit()
@@ -79,7 +91,8 @@ session.commit()
 hockeyItem = CatalogItem(
     id="Stick",
     description="A Protector",
-    catalog=Hockey
+    catalog=Hockey,
+    user_id=user1.id
 )
 session.add(hockeyItem)
 session.commit()

@@ -5,7 +5,7 @@
     <div id='item-container'>
         <h3>{{ item.id }}</h3>
         <p>{{ item.description }}</p>
-        {% if login_session['username'] %}
+        {% if login_session['user_id'] == item.user.id %}
             <div>
                 <a href = "{{url_for('editCatalogItem', catalog_id=item.catalog.id, item_id=item.id)}}">Edit</a> |
                 <a href = "{{url_for('deleteCatalogItem', catalog_id=item.catalog.id, item_id=item.id)}}">Delete</a> 

@@ -14,7 +14,7 @@
             {% for item in items %}
                 <li>
                     <a href = "{{url_for('showCatalogItem', catalog_id=item.catalog.id, item_id=item.id)}}">{{ item.id }} ({{ item.catalog.id }})</a>
-                    {% if login_session['username'] %}
+                    {% if login_session['user_id'] == item.user.id %}
                         <div>
                             <a href = "{{url_for('editCatalogItem', catalog_id=item.catalog.id, item_id=item.id)}}">Edit</a> |
                             <a href = "{{url_for('deleteCatalogItem', catalog_id=item.catalog.id, item_id=item.id)}}">Delete</a> 
